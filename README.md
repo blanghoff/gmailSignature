@@ -1,30 +1,35 @@
 # Gmail Signature Manager
 
-A client-side web application to update Gmail signatures using the Gmail API v1. This tool allows users to create formatted HTML signature blocks and set them as default in their Gmail settings.
+A client-side web application for Google Workspace environments to update Gmail signatures using the Gmail API v1. This tool allows users to search for their pre-formatted signature and apply it to their Gmail account.
 
 ## Features
 
 - ✅ **Client-side only** - No server required, runs entirely in the browser
 - ✅ **OAuth2 Authentication** - Secure Google sign-in
-- ✅ **Custom Signature Builder** - Create professional signatures with name, title, phone, company, and website
+- ✅ **Search-based Selection** - Users search for their signature by name or extension
+- ✅ **Pre-formatted Signatures** - Signatures are stored with company formatting and branding
 - ✅ **Live Preview** - See your signature before applying it
-- ✅ **Automatic Default Setting** - Sets signature as default for all emails
-- ✅ **Modern UI** - Clean, responsive design
+- ✅ **Google Workspace Ready** - Designed for centralized IT management
+- ✅ **Modern UI** - Clean, responsive Bootstrap-based design
 
 ## Migration from Deprecated API
 
 This application replaces the old Gmail signature tool that used deprecated APIs. The new implementation uses:
 
 - **Gmail API v1** - Current stable API for managing signatures
-- **Google Identity Services** - Modern OAuth2 authentication (replaces deprecated Google Sign-In)
+- **Google Identity Services** - Modern OAuth2 authentication (replaces deprecated gapi.auth2)
 - **SendAs Settings Endpoint** - Proper API endpoint for signature management
 
 ## Setup Instructions
 
+### For IT Administrators
+
+This tool is designed for Google Workspace environments where IT manages the Google Cloud Project centrally.
+
 ### 1. Create Google Cloud Project
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select an existing one
+2. Create a new project for your organization
 3. Enable the **Gmail API**:
    - Navigate to "APIs & Services" > "Library"
    - Search for "Gmail API"
@@ -33,11 +38,11 @@ This application replaces the old Gmail signature tool that used deprecated APIs
 ### 2. Configure OAuth Consent Screen
 
 1. Go to "APIs & Services" > "OAuth consent screen"
-2. Select "Internal" (for Google Workspace) or "External" (for general use)
+2. Select "Internal" (for Google Workspace organizations)
 3. Fill in the required information:
    - App name: "Gmail Signature Manager"
-   - User support email: Your email
-   - Developer contact email: Your email
+   - User support email: IT support email
+   - Developer contact email: IT contact email
 4. Add scopes:
    - `https://www.googleapis.com/auth/gmail.settings.basic`
    - `https://www.googleapis.com/auth/gmail.settings.sharing`
@@ -52,7 +57,7 @@ This application replaces the old Gmail signature tool that used deprecated APIs
    - Name: "Gmail Signature Web Client"
    - Authorized JavaScript origins:
      - `http://localhost:8000` (for local testing)
-     - Your production domain (e.g., `https://yourdomain.com`)
+     - Your production domain (e.g., `https://signatures.yourcompany.com`)
    - Authorized redirect URIs are not needed for this application
 5. Click "Create"
 6. Copy the **Client ID**
@@ -60,17 +65,36 @@ This application replaces the old Gmail signature tool that used deprecated APIs
 ### 4. Configure the Application
 
 1. Open `index.html` in a text editor
-2. Replace `YOUR_CLIENT_ID_HERE` with your OAuth 2.0 Client ID (line 272)
-3. (Optional) If you want to use an API Key for additional quotas, replace `YOUR_API_KEY_HERE` on line 273
-   - API Key is optional for this application as OAuth provides sufficient access
+2. Replace `YOUR_CLIENT_ID_HERE` with your OAuth 2.0 Client ID (around line 24)
+3. Update the `employeeData` array (starting around line 37) with your organization's employee data:
 
-Example:
 ```javascript
-const CLIENT_ID = '123456789-abcdefghijklmnop.apps.googleusercontent.com';
-const API_KEY = 'AIzaSyA-your-api-key-here'; // Optional
+const employeeData = [
+    {
+        name: "Employee Name",
+        title: "Job Title",
+        email: "email@yourcompany.com",
+        phone: "1234567890",
+        extension: "1001",
+        fax: "",
+        designations: "Professional certifications",
+        disclaimer: "<p>Your company disclaimer text</p>"
+    },
+    // Add more employees...
+];
 ```
 
-### 5. Deploy the Application
+**Note:** For larger organizations, consider loading employee data from an external JSON file or API endpoint instead of hardcoding in the HTML.
+
+### 5. Customize Signature Formatting
+
+Edit the `generateSignatureHTML()` function (around line 79) to match your company's signature format, including:
+- Colors and fonts
+- Company logo (can be added as base64 or external URL)
+- Layout and styling
+- Disclaimer text
+
+### 6. Deploy the Application
 
 #### Option A: Local Testing
 1. Open a terminal in the project directory
@@ -95,13 +119,27 @@ const API_KEY = 'AIzaSyA-your-api-key-here'; // Optional
 
 ## Usage
 
-1. **Open the Application** - Navigate to the hosted URL or local server
-2. **Sign In** - Click "Sign in with Google" and authorize the application
-3. **Create Signature**:
-   - Fill in your details (Name is required)
-   - Click "Generate Signature" to see a preview
-4. **Update Gmail** - Click "Update Gmail Signature" to save the signature to your Gmail account
-5. The signature will be automatically set as default for all emails
+### For End Users
+
+1. **Open the Application** - Navigate to the deployed URL provided by your IT department
+2. **Search for Your Signature**:
+   - Enter your name or phone extension in the search box
+   - Your signature details will appear with a preview
+3. **Authenticate**:
+   - Click "Step 1: Authenticate with Google"
+   - Sign in with your Google Workspace account
+   - Grant the necessary permissions
+4. **Apply Signature**:
+   - Click "Step 2: Apply Signature"
+   - The signature will be updated in your Gmail account
+5. **Verify** - Check your Gmail settings to confirm the signature was applied
+
+### Important Notes
+
+- You must be signed in with the Google Workspace account that matches the email in the search results
+- The signature will replace your current Gmail signature
+- You only need to authenticate once per session
+- If authentication expires, simply click "Step 1" again
 
 ## Security Notes
 
